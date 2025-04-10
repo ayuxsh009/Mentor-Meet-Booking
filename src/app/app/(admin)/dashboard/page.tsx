@@ -26,7 +26,7 @@ function DashboardPage() {
   const handleStatusUpdate = async (interviewId: Id<"interviews">, status: string) => {
     try {
       await updateStatus({ id: interviewId, status });
-      toast.success(`Interview marked as ${status}`);
+      toast.success(`Session marked as ${status}`);
     } catch (error) {
       toast.error("Failed to update status");
     }
@@ -38,9 +38,14 @@ function DashboardPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <div className="flex items-center mb-8">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+          Saarthi Mentor Meet
+        </h1>
         <Link href="/app/schedule">
-          <Button>Schedule New Interview</Button>
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+            Schedule New Session
+          </Button>
         </Link>
       </div>
 
@@ -51,7 +56,7 @@ function DashboardPage() {
               <section key={category.id}>
                 {/* CATEGORY TITLE */}
                 <div className="flex items-center gap-2 mb-4">
-                  <h2 className="text-xl font-semibold">{category.title}</h2>
+                  <h2 className="text-xl font-semibold text-gray-800">{category.title}</h2>
                   <Badge variant={category.variant}>{groupedInterviews[category.id].length}</Badge>
                 </div>
 
@@ -61,8 +66,8 @@ function DashboardPage() {
                     const startTime = new Date(interview.startTime);
 
                     return (
-                      <Card className="hover:shadow-md transition-all">
-                        {/* CANDIDATE INFO */}
+                      <Card key={interview._id} className="hover:shadow-md transition-all border border-gray-200">
+                        {/* MENTEE INFO */}
                         <CardHeader className="p-4">
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10">
@@ -70,15 +75,15 @@ function DashboardPage() {
                               <AvatarFallback>{candidateInfo.initials}</AvatarFallback>
                             </Avatar>
                             <div>
-                              <CardTitle className="text-base">{candidateInfo.name}</CardTitle>
-                              <p className="text-sm text-muted-foreground">{interview.title}</p>
+                              <CardTitle className="text-base text-gray-800">{candidateInfo.name}</CardTitle>
+                              <p className="text-sm text-gray-600">{interview.title}</p>
                             </div>
                           </div>
                         </CardHeader>
 
-                        {/* DATE &  TIME */}
+                        {/* DATE & TIME */}
                         <CardContent className="p-4">
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-4 text-sm text-gray-600">
                             <div className="flex items-center gap-1">
                               <CalendarIcon className="h-4 w-4" />
                               {format(startTime, "MMM dd")}
@@ -90,16 +95,16 @@ function DashboardPage() {
                           </div>
                         </CardContent>
 
-                        {/* PASS & FAIL BUTTONS */}
+                        {/* SESSION OUTCOME BUTTONS */}
                         <CardFooter className="p-4 pt-0 flex flex-col gap-3">
                           {interview.status === "completed" && (
                             <div className="flex gap-2 w-full">
                               <Button
-                                className="flex-1"
+                                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
                                 onClick={() => handleStatusUpdate(interview._id, "succeeded")}
                               >
                                 <CheckCircle2Icon className="h-4 w-4 mr-2" />
-                                Pass
+                                Successful
                               </Button>
                               <Button
                                 variant="destructive"
@@ -107,7 +112,7 @@ function DashboardPage() {
                                 onClick={() => handleStatusUpdate(interview._id, "failed")}
                               >
                                 <XCircleIcon className="h-4 w-4 mr-2" />
-                                Fail
+                                Needs Work
                               </Button>
                             </div>
                           )}
@@ -124,4 +129,5 @@ function DashboardPage() {
     </div>
   );
 }
+
 export default DashboardPage;

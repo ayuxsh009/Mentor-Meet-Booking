@@ -27,49 +27,49 @@ import { Calendar } from "@/components/ui/calendar";
 import { TIME_SLOTS } from "@/constants";
 import MeetingCard from "@/components/MeetingCard";
 
-function InterviewScheduleUI() {
+function MentorSessionScheduleUI() {
   const client = useStreamVideoClient();
   const { user } = useUser();
   const [open, setOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
-  const interviews = useQuery(api.interviews.getAllInterviews) ?? [];
+  const sessions = useQuery(api.interviews.getAllInterviews) ?? [];
   const users = useQuery(api.users.getUsers) ?? [];
-  const createInterview = useMutation(api.interviews.createInterview);
+  const createSession = useMutation(api.interviews.createInterview);
 
-  const candidates = users?.filter((u) => u.role === "candidate");
-  const interviewers = users?.filter((u) => u.role === "interviewer");
+  const mentees = users?.filter((u) => u.role === "candidate");
+  const mentors = users?.filter((u) => u.role === "interviewer");
 
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     date: new Date(),
     time: "09:00",
-    candidateId: "",
-    interviewerIds: user?.id ? [user.id] : [],
+    menteeId: "",
+    mentorIds: user?.id ? [user.id] : [],
   });
 
-  const scheduleMeeting = async () => {
+  const scheduleSession = async () => {
     if (!client || !user) return;
-    if (!formData.candidateId || formData.interviewerIds.length === 0) {
-      toast.error("Please select both candidate and at least one interviewer");
+    if (!formData.menteeId || formData.mentorIds.length === 0) {
+      toast.error("Please select both mentee and at least one mentor");
       return;
     }
 
     setIsCreating(true);
 
     try {
-      const { title, description, date, time, candidateId, interviewerIds } = formData;
+      const { title, description, date, time, menteeId, mentorIds } = formData;
       const [hours, minutes] = time.split(":");
-      const meetingDate = new Date(date);
-      meetingDate.setHours(parseInt(hours), parseInt(minutes), 0);
+      const sessionDate = new Date(date);
+      sessionDate.setHours(parseInt(hours), parseInt(minutes), 0);
 
       const id = crypto.randomUUID();
       const call = client.call("default", id);
 
       await call.getOrCreate({
         data: {
-          starts_at: meetingDate.toISOString(),
+          starts_at: sessionDate.toISOString(),
           custom: {
             description: title,
             additionalDetails: description,
@@ -77,58 +77,58 @@ function InterviewScheduleUI() {
         },
       });
 
-      await createInterview({
+      await createSession({
         title,
         description,
-        startTime: meetingDate.getTime(),
+        startTime: sessionDate.getTime(),
         status: "upcoming",
         streamCallId: id,
-        candidateId,
-        interviewerIds,
+        candidateId: menteeId,
+        interviewerIds: mentorIds,
       });
 
       setOpen(false);
-      toast.success("Meeting scheduled successfully!");
+      toast.success("Mentoring session scheduled successfully!");
 
       setFormData({
         title: "",
         description: "",
         date: new Date(),
         time: "09:00",
-        candidateId: "",
-        interviewerIds: user?.id ? [user.id] : [],
+        menteeId: "",
+        mentorIds: user?.id ? [user.id] : [],
       });
     } catch (error) {
       console.error(error);
-      toast.error("Failed to schedule meeting. Please try again.");
+      toast.error("Failed to schedule session. Please try again.");
     } finally {
       setIsCreating(false);
     }
   };
 
-  const addInterviewer = (interviewerId: string) => {
-    if (!formData.interviewerIds.includes(interviewerId)) {
+  const addMentor = (mentorId: string) => {
+    if (!formData.mentorIds.includes(mentorId)) {
       setFormData((prev) => ({
         ...prev,
-        interviewerIds: [...prev.interviewerIds, interviewerId],
+        mentorIds: [...prev.mentorIds, mentorId],
       }));
     }
   };
 
-  const removeInterviewer = (interviewerId: string) => {
-    if (interviewerId === user?.id) return;
+  const removeMentor = (mentorId: string) => {
+    if (mentorId === user?.id) return;
     setFormData((prev) => ({
       ...prev,
-      interviewerIds: prev.interviewerIds.filter((id) => id !== interviewerId),
+      mentorIds: prev.mentorIds.filter((id) => id !== mentorId),
     }));
   };
 
-  const selectedInterviewers = interviewers.filter((i) =>
-    formData.interviewerIds.includes(i.clerkId)
+  const selectedMentors = mentors.filter((i) =>
+    formData.mentorIds.includes(i.clerkId)
   );
 
-  const availableInterviewers = interviewers.filter(
-    (i) => !formData.interviewerIds.includes(i.clerkId)
+  const availableMentors = mentors.filter(
+    (i) => !formData.mentorIds.includes(i.clerkId)
   );
 
   return (
@@ -136,77 +136,80 @@ function InterviewScheduleUI() {
       <div className="flex items-center justify-between">
         {/* HEADER INFO */}
         <div>
-          <h1 className="text-3xl font-bold">Interviews</h1>
-          <p className="text-muted-foreground mt-1">Schedule and manage interviews</p>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+            Saarthi Mentor Meet
+          </h1>
+          <p className="text-gray-600 mt-1">Schedule and manage mentoring sessions</p>
         </div>
 
         {/* DIALOG */}
-
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="lg">Schedule Interview</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white" size="lg">
+              Schedule Session
+            </Button>
           </DialogTrigger>
 
           <DialogContent className="sm:max-w-[500px] h-[calc(100vh-200px)] overflow-auto">
             <DialogHeader>
-              <DialogTitle>Schedule Interview</DialogTitle>
+              <DialogTitle className="text-gray-800">Schedule Mentoring Session</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              {/* INTERVIEW TITLE */}
+              {/* SESSION TITLE */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Title</label>
+                <label className="text-sm font-medium text-gray-700">Title</label>
                 <Input
-                  placeholder="Interview title"
+                  placeholder="Session title"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 />
               </div>
 
-              {/* INTERVIEW DESC */}
+              {/* SESSION DESC */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Description</label>
+                <label className="text-sm font-medium text-gray-700">Description</label>
                 <Textarea
-                  placeholder="Interview description"
+                  placeholder="Session description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
                 />
               </div>
 
-              {/* CANDIDATE */}
+              {/* MENTEE */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Candidate</label>
+                <label className="text-sm font-medium text-gray-700">Mentee</label>
                 <Select
-                  value={formData.candidateId}
-                  onValueChange={(candidateId) => setFormData({ ...formData, candidateId })}
+                  value={formData.menteeId}
+                  onValueChange={(menteeId) => setFormData({ ...formData, menteeId })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select candidate" />
+                    <SelectValue placeholder="Select mentee" />
                   </SelectTrigger>
                   <SelectContent>
-                    {candidates.map((candidate) => (
-                      <SelectItem key={candidate.clerkId} value={candidate.clerkId}>
-                        <UserInfo user={candidate} />
+                    {mentees.map((mentee) => (
+                      <SelectItem key={mentee.clerkId} value={mentee.clerkId}>
+                        <UserInfo user={mentee} />
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* INTERVIEWERS */}
+              {/* MENTORS */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Interviewers</label>
+                <label className="text-sm font-medium text-gray-700">Mentors</label>
                 <div className="flex flex-wrap gap-2 mb-2">
-                  {selectedInterviewers.map((interviewer) => (
+                  {selectedMentors.map((mentor) => (
                     <div
-                      key={interviewer.clerkId}
-                      className="inline-flex items-center gap-2 bg-secondary px-2 py-1 rounded-md text-sm"
+                      key={mentor.clerkId}
+                      className="inline-flex items-center gap-2 bg-blue-100 px-2 py-1 rounded-md text-sm"
                     >
-                      <UserInfo user={interviewer} />
-                      {interviewer.clerkId !== user?.id && (
+                      <UserInfo user={mentor} />
+                      {mentor.clerkId !== user?.id && (
                         <button
-                          onClick={() => removeInterviewer(interviewer.clerkId)}
-                          className="hover:text-destructive transition-colors"
+                          onClick={() => removeMentor(mentor.clerkId)}
+                          className="hover:text-red-500 transition-colors"
                         >
                           <XIcon className="h-4 w-4" />
                         </button>
@@ -214,15 +217,15 @@ function InterviewScheduleUI() {
                     </div>
                   ))}
                 </div>
-                {availableInterviewers.length > 0 && (
-                  <Select onValueChange={addInterviewer}>
+                {availableMentors.length > 0 && (
+                  <Select onValueChange={addMentor}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Add interviewer" />
+                      <SelectValue placeholder="Add mentor" />
                     </SelectTrigger>
                     <SelectContent>
-                      {availableInterviewers.map((interviewer) => (
-                        <SelectItem key={interviewer.clerkId} value={interviewer.clerkId}>
-                          <UserInfo user={interviewer} />
+                      {availableMentors.map((mentor) => (
+                        <SelectItem key={mentor.clerkId} value={mentor.clerkId}>
+                          <UserInfo user={mentor} />
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -234,7 +237,7 @@ function InterviewScheduleUI() {
               <div className="flex gap-4">
                 {/* CALENDAR */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Date</label>
+                  <label className="text-sm font-medium text-gray-700">Date</label>
                   <Calendar
                     mode="single"
                     selected={formData.date}
@@ -245,9 +248,8 @@ function InterviewScheduleUI() {
                 </div>
 
                 {/* TIME */}
-
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Time</label>
+                  <label className="text-sm font-medium text-gray-700">Time</label>
                   <Select
                     value={formData.time}
                     onValueChange={(time) => setFormData({ ...formData, time })}
@@ -271,14 +273,18 @@ function InterviewScheduleUI() {
                 <Button variant="outline" onClick={() => setOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={scheduleMeeting} disabled={isCreating}>
+                <Button 
+                  className="bg-blue-600 hover:bg-blue-700 text-white" 
+                  onClick={scheduleSession} 
+                  disabled={isCreating}
+                >
                   {isCreating ? (
                     <>
                       <Loader2Icon className="mr-2 size-4 animate-spin" />
                       Scheduling...
                     </>
                   ) : (
-                    "Schedule Interview"
+                    "Schedule Session"
                   )}
                 </Button>
               </div>
@@ -287,23 +293,24 @@ function InterviewScheduleUI() {
         </Dialog>
       </div>
 
-      {/* LOADING STATE & MEETING CARDS */}
-      {!interviews ? (
+      {/* LOADING STATE & SESSION CARDS */}
+      {!sessions ? (
         <div className="flex justify-center py-12">
-          <Loader2Icon className="size-8 animate-spin text-muted-foreground" />
+          <Loader2Icon className="size-8 animate-spin text-blue-600" />
         </div>
-      ) : interviews.length > 0 ? (
+      ) : sessions.length > 0 ? (
         <div className="spacey-4">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {interviews.map((interview) => (
-              <MeetingCard key={interview._id} interview={interview} />
+            {sessions.map((session) => (
+              <MeetingCard key={session._id} interview={session} />
             ))}
           </div>
         </div>
       ) : (
-        <div className="text-center py-12 text-muted-foreground">No interviews scheduled</div>
+        <div className="text-center py-12 text-gray-600">No mentoring sessions scheduled</div>
       )}
     </div>
   );
 }
-export default InterviewScheduleUI;
+
+export default MentorSessionScheduleUI;

@@ -27,7 +27,7 @@ export default function Home() {
         setModalType("start");
         setShowModal(true);
         break;
-      case "Join Interview":
+      case "Join Meetings":
         setModalType("join");
         setShowModal(true);
         break;
@@ -41,20 +41,7 @@ export default function Home() {
   return (
     <div className="container max-w-7xl mx-auto p-6">
       {/* MODULE BAR */}
-      <div className="flex flex-wrap gap-4 mb-8">
-        <Link
-          href="https://interview-wrapper-ai-bot.vercel.app/"
-          className="flex-1 min-w-[200px] px-6 py-3 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-lg border border-secondary/20 shadow-sm hover:shadow-md transition-all duration-300 font-medium text-center flex items-center justify-center gap-2 hover:scale-[1.02]"
-        >
-          <span className="whitespace-nowrap">AI Bot</span>
-        </Link>
-        <Link
-          href="https://interview-wrapper-prep.vercel.app/dashboard"
-          className="flex-1 min-w-[200px] px-6 py-3 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-lg border border-secondary/20 shadow-sm hover:shadow-md transition-all duration-300 font-medium text-center flex items-center justify-center gap-2 hover:scale-[1.02]"
-        >
-          <span className="whitespace-nowrap">AI Interview Prep</span>
-        </Link>
-      </div>
+     
 
       {/* WELCOME SECTION */}
       <div className="rounded-lg bg-card p-6 border border-border shadow-sm mb-10">
@@ -63,8 +50,8 @@ export default function Home() {
         </h1>
         <p className="text-muted-foreground mt-2">
           {isInterviewer
-            ? "Manage your interviews and review candidates effectively"
-            : "Access your upcoming interviews and preparations"}
+            ? "Manage your meets and review students effectively"
+            : "Access your upcoming meets and preparations"}
         </p>
       </div>
 
@@ -92,7 +79,7 @@ export default function Home() {
           <div>
             <h1 className="text-3xl font-bold">Your Interviews</h1>
             <p className="text-muted-foreground mt-1">
-              View and join your scheduled interviews
+              View and join your scheduled Meetings
             </p>
           </div>
 
@@ -109,7 +96,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
-                You have no scheduled interviews at the moment
+                You have no scheduled Meeting at the moment
               </div>
             )}
           </div>
