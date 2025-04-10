@@ -100,7 +100,7 @@ function DashboardPage() {
                           {interview.status === "completed" && (
                             <div className="flex gap-2 w-full">
                               <Button
-                                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                                 onClick={() => handleStatusUpdate(interview._id, "succeeded")}
                               >
                                 <CheckCircle2Icon className="h-4 w-4 mr-2" />
