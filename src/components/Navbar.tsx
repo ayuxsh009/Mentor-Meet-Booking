@@ -3,6 +3,8 @@ import { ModeToggle } from "./ModeToggle";
 import { CodeIcon } from "lucide-react";
 import { SignedIn, UserButton } from "@clerk/nextjs";
 import DasboardBtn from "./DasboardBtn";
+import Mainpagebtn from "./Mainpagebtn";
+import { Button } from "@/components/ui/button";
 
 function Navbar() {
   return (
@@ -15,13 +17,14 @@ function Navbar() {
         >
           <CodeIcon className="size-8 text-blue-500" />
           <span className="bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
-            Saarthi Mentor Meet 
+            Saarthi Mentor Meet
           </span>
         </Link>
-
+        
         {/* RIGHT SIDE - ACTIONS */}
         <SignedIn>
           <div className="flex items-center space-x-4 ml-auto">
+            <Mainpagebtn/>
             <DasboardBtn />
             <ModeToggle />
             <UserButton />

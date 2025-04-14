@@ -42,6 +42,7 @@ function DashboardPage() {
         <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
           Saarthi Mentor Meet
         </h1>
+        
         <Link href="/app/schedule">
           <Button className="bg-blue-600 hover:bg-blue-700 text-white">
             Schedule New Session
